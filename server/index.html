@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Colorimetro</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            
+        }
+        .header{
+            text-align: center;
+            font-size:35px ;
+            background-color: rgb(8, 59, 59);
+            color: azure;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            padding: 15px;
+        }
+        .body{
+        background-color: lightgray;
+        
+        }
+        .parrafo{
+            padding-left:10px ;
+            font-size: 37px;
+            border-top: solid;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .parrafo span{
+            border:solid;
+            border-radius: 30px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        table{
+            border: solid;
+        }
+        .tablecontainer{
+            padding-left: 10px;
+        }
+        table td{
+            border: solid;
+            height:60px ;
+            width: 120px;
+            font-size: 18px;
+            text-align:center;
+            font-weight: bold;
+            
+        }
+        .containerBtn1{
+            padding-left: 170px;
+            padding-bottom:5px ;
+        }
+        #btncaptureIo{
+            font-size:17px ;
+            padding: 5px;
+            border-radius: 12px;
+            background-color:rgb(83, 215, 83);
+        }
+        #btncaptureI{
+            font-size:17px ;
+            padding: 5px;
+            border-radius: 12px;
+            background-color:rgb(83, 215, 83);
+        }
+        .containterBtnBorrar{
+            padding-left: 10px;
+            padding-top: 7px;
+        }
+        #btnBorrardatos{
+            font-size:17px ;
+            padding: 5px;
+            border-radius: 12px;
+            background-color:rgb(218, 80, 73);
+        }
+        #id{
+            font-weight:900;
+        }
+        .grafica{
+            position: relative;
+            height: 500px;
+            width:900px;
+            padding: 20px;
+            
+        }
+        #BtnCrearGrafica{
+            font-size:17px ;
+            padding: 5px;
+            border-radius: 12px;
+            background-color:rgb(33, 214, 234);
+        }
+        
+        .concentracion{
+            width: 95%;
+            height: 90%;
+            background-color:rgb(211, 211, 211) ;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        #EcuacionRecta{
+            padding-left: 410px;
+            font-weight: bold;
+            padding-bottom:20px ;
+        }
+        #Correlacion{
+            padding-left: 410px;
+            font-weight: bold;
+            padding-bottom:20px ;
+        }
+        
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1 class="titulo">Colorímetro</h1>
+</div>
+<div class="body">
+    <p class="parrafo">Datos del colorímetro: <span id="datos"></span></p>
+    <div class="containerBtn1">
+        <button id="btncaptureIo" onclick="capturarValorIo()">Capturar Io</button>
+        <button id="btncaptureI"  onclick="capturarValorI()">Capturar I</button>
+    </div>
+    <div class="tablecontainer">
+<table class="table">
+    <tr>
+        <td></td>
+        <td>Valores de Io</td>
+        <td>Valores de I</td>
+        <td>Concentración</td>
+        <td>Absorbancia</td>
+        
+    </tr>
+    <tr>
+        <td>I1</td>
+        <td id="valorIo0"></td>
+        <td id="valorI0"></td>
+        <td><input id="Concentracion1" class="concentracion" placeholder="Concentración" type="number"></td>
+        <td id="Absorb1"></td>
+
+    </tr>
+    <tr>  
+        <td>I2</td>
+        <td id="valorIo1"></td> 
+        <td id="valorI1"></td>
+        <td><input id="Concentracion2" class="concentracion" placeholder="Concentración" type="number"></input></td>
+        <td id="Absorb2"></td>
+
+    </tr>
+    <tr>  
+        <td>I3</td>
+        <td id="valorIo2"></td> 
+        <td id="valorI2"></td>
+        <td><input id="Concentracion3" class="concentracion" placeholder="Concentración" type="number"></td>
+        <td id="Absorb3"></td>
+
+    </tr>
+    <tr>  
+        <td>I4</td>
+        <td id="valorIo3"></td> 
+        <td id="valorI3"></td>
+        <td><input id="Concentracion4" class="concentracion" placeholder="Concentración" type="number"></td>
+        <td id="Absorb4"></td>
+
+    </tr>
+    <tr>  
+        <td>I5</td>
+        <td id="valorIo4"></td> 
+        <td id="valorI4"></td>
+        <td><input id="Concentracion5" class="concentracion" placeholder="Concentración" type="number" ></td>
+        <td id="Absorb5"></td>
+    </tr>
+</table>
+
+
+</div>
+<div class="containterBtnBorrar">
+<button id="btnBorrardatos"  onclick="limpiarTabla()">Borrar datos</button>
+<button onclick="CreateChart()" id="BtnCrearGrafica" > Generar gráfica </button>
+</div>
+<div class="grafica">
+    <P id="EcuacionRecta"></P>
+    <p id="Correlacion"></p>
+    <canvas id="miGrafica" ></canvas>
+
+</div>
+</div>
+
+
+
+
+    <script src="socket.io/socket.io.js" charset="utf-8"></script>
+    <script>
+        const socket = io();
+        var datosRecibidos= 0
+        var datoRecibido1 = 0
+        var datoRecibido2 = 0
+        var datoRecibido3 = 0
+        var datoRecibido4 = 0
+        var datoRecibido5 = 0
+        var Conc1 = 0
+        var Conc2 = 0
+        var Conc3 = 0
+        var Conc4 = 0
+        var Conc5 = 0
+        var valorI0 = 0
+        var Absorb1 = 0
+        var Absorb2 = 0
+        var Absorb3 = 0
+        var Absorb4 = 0
+        var Absorb5 = 0
+        var SumConcentracion = 0
+        var SumAbsorbancia = 0
+        var ConcPorAbs = 0
+        var SumCAlCuadrado = 0
+        var SumAAlCuadrado = 0
+        var NumeroDeSoluciones = 0
+        var PendienteDeGrafica = 0
+        var IncognitaB = 0
+        var Punto1Concentracion = 0
+        var Punto2Concentracion = 0
+        
+        const tablaI0 = document.getElementById('valorI0')
+        const tablaI1 = document.getElementById('valorI1')
+        const tablaI2 = document.getElementById('valorI2')
+        const tablaI3 = document.getElementById('valorI3')
+        const tablaI4 = document.getElementById('valorI4')
+        const Concentracion1 = document.getElementById('Concentracion1')
+        const Concentracion2 = document.getElementById('Concentracion2')
+        const Concentracion3 = document.getElementById('Concentracion3')
+        const Concentracion4 = document.getElementById('Concentracion4')
+        const Concentracion5 = document.getElementById('Concentracion5')
+        
+        socket.on('arduino:data', function(data){
+            datosRecibidos = data.value
+            
+            $("#datos").text(data.value);
+        })
+
+        function capturarValorIo(){
+        $("#valorIo0").text(datosRecibidos);
+        $("#valorIo1").text(datosRecibidos);
+        $("#valorIo2").text(datosRecibidos);
+        $("#valorIo3").text(datosRecibidos);
+        $("#valorIo4").text(datosRecibidos);
+        valorIo = datosRecibidos
+        }
+
+        function capturarValorI(){
+        if (datoRecibido1 == 0){
+            datoRecibido1 = datosRecibidos
+            $("#valorI0").text(datoRecibido1)
+            $("#Absorb1").text(Math.log10(valorIo/datoRecibido1))
+            Absorb1 = Math.log10(valorIo/datoRecibido1)
+
+
+        }else if (datoRecibido2 == 0){
+            datoRecibido2 = datosRecibidos
+            $("#valorI1").text(datoRecibido2)
+            $("#Absorb2").text(Math.log10(valorIo/datoRecibido2))
+            Absorb2 = Math.log10(valorIo/datoRecibido2)
+
+
+        }else if (datoRecibido3 == 0){
+            datoRecibido3 = datosRecibidos
+            $("#valorI2").text(datoRecibido3)
+            $("#Absorb3").text(Math.log10(valorIo/datoRecibido3))
+            Absorb3 = Math.log10(valorIo/datoRecibido3)
+
+
+        }else if (datoRecibido4 == 0){
+            datoRecibido4 = datosRecibidos
+            $("#valorI3").text(datoRecibido4)
+            $("#Absorb4").text(Math.log10(valorIo/datoRecibido4))
+            Absorb4 = Math.log10(valorIo/datoRecibido4)
+
+
+
+        }else if (datoRecibido5 == 0){
+            datoRecibido5 = datosRecibidos
+            $("#valorI4").text(datoRecibido5)
+            $("#Absorb5").text(Math.log10(valorIo/datoRecibido5)) 
+            Absorb5 = Math.log10(valorIo/datoRecibido5)
+        }
+    }
+    
+
+    function limpiarTabla(){
+        $("#valorIo0").text("");
+        $("#valorIo1").text("");
+        $("#valorIo2").text("");
+        $("#valorIo3").text("");
+        $("#valorIo4").text("");
+        $("#valorI0").text("");
+        $("#valorI1").text("");
+        $("#valorI2").text("");
+        $("#valorI3").text("");
+        $("#valorI4").text("");
+        $("#Absorb1").text("");
+        $("#Absorb2").text("");
+        $("#Absorb3").text("");
+        $("#Absorb4").text("");
+        $("#Absorb5").text("");
+        datoRecibido1 = 0
+        datoRecibido2 = 0
+        datoRecibido3 = 0
+        datoRecibido4 = 0
+        datoRecibido5 = 0
+        valorIo = 0
+        Concentracion1.value = ''
+        Concentracion2.value = ''
+        Concentracion3.value = ''
+        Concentracion4.value = ''
+        Concentracion5.value = ''
+        document.getElementById("miGrafica").style.display = "none";
+        $("#EcuacionRecta").text("");
+        $("#Correlacion").text("");
+    }
+
+    function CreateChart(){
+        Conc1 = parseInt(Concentracion1.value)
+        Conc2 = parseInt(Concentracion2.value)
+        Conc3 = parseInt(Concentracion3.value)
+        Conc4 = parseInt(Concentracion4.value)
+        Conc5 = parseInt(Concentracion5.value)
+        //Para la recta ideal
+Punto1Concentracion = 0.1 //P1
+Punto2Concentracion = 0.2 //p2
+
+Absorbancia1 = parseInt(PendienteDeGrafica*Punto1Concentracion + IncognitaB)
+Absorbancia2 = parseInt(PendienteDeGrafica*Punto2Concentracion + IncognitaB)
+
+    let Grafica = document.getElementById("miGrafica")
+    let miGrafica = new Chart(Grafica,{
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: "Grafica de Absorbancia en funcion de Concentración",
+            data: [ {
+            x:0,
+            y:0
+            },{
+            x: Conc1,
+            y: Absorb1
+            }, {
+            x: Conc2,
+            y: Absorb2
+            }, {
+            x: Conc3,
+            y: Absorb3
+            }, {
+            x: Conc4,
+            y: Absorb4
+            }, {
+            x: Conc5,
+            y:  Absorb5 
+            }],
+            showLine: false,
+            fill:false,
+            borderColor: 'rgba(0,0,0,1)',
+        },{
+            data:[{
+                x:Punto1Concentracion,
+                y:Absorbancia1
+            },{
+                x:Punto2Concentracion,
+                y:Absorbancia2
+            }],
+            showLine: true,
+            fill:false,
+            borderColor: 'rgba(0,0,0,1)',
+        }]
+    },
+    options: {
+        responsive: 'true',
+        showline: false,
+    }
+    })
+document.getElementById("miGrafica").style.display = "block";
+
+// para hallar m
+SumConcentracion = Conc1 + Conc2 + Conc3 + Conc4 + Conc5 //Sc
+SumAbsorbancia = Absorb1 + Absorb2 + Absorb3 + Absorb4 + Absorb5 //Sa
+ConcPorAbs = (Conc1*Absorb1) + (Conc2*Absorb2) + (Conc3*Absorb3) + (Conc4*Absorb4) + (Conc5*Absorb5) //Sc.a
+SumCAlCuadrado = (Conc1*Conc1) + (Conc2*Conc2) + (Conc3*Conc3) + (Conc4*Conc4) + (Conc5*Conc5) //Sc*
+SumAAlCuadrado = (Absorb1*Absorb1) + (Absorb2*Absorb2) + (Absorb3*Absorb3) + (Absorb4*Absorb4) + (Absorb5*Absorb5) //Sa*
+NumeroDeSoluciones = 5
+NPorSCPorA = (NumeroDeSoluciones*ConcPorAbs) //N.(Sc.a)
+SConcPorSAbs = (SumConcentracion*SumAbsorbancia) //Sc.Sa
+NPorSconcAlCuadrado = (NumeroDeSoluciones*SumCAlCuadrado) //N.Sc*
+SConcPorSconc = (SumConcentracion*SumConcentracion) //Sc.Sc
+PendienteDeGrafica = NPorSCPorA-SConcPorSAbs/NPorSconcAlCuadrado-SConcPorSconc //m
+
+//para hallar b
+SAbsPorSconcAlCuadrado = (SumAbsorbancia*SumCAlCuadrado) //Sa.Sc*
+SconcPorSConcPorAbs = (SumConcentracion*ConcPorAbs) //Sc.(Sc.a)
+IncognitaB = SAbsPorSconcAlCuadrado-SconcPorSConcPorAbs/NPorSconcAlCuadrado-SConcPorSconc //b
+// para hallar R
+
+NPorSAbsAlCuadrado = (NumeroDeSoluciones*SumAAlCuadrado) // N.Sa*
+SAbsPorSAbs = (SumAbsorbancia*SumAbsorbancia)//Sa.Sa
+RaizNPorScAlCuadradoMenosScPorSc = Math.sqrt(NPorSconcAlCuadrado - SConcPorSconc)//Raiz de (N.Sc*)-(Sc.Sc)
+RaizNPorSaAlCuadradoMenosSaPorSa = Math.sqrt(NPorSAbsAlCuadrado - SAbsPorSAbs)//Raiz de (N.Sa*)-(Sa.Sa)
+BaseDeCorrelacion = NPorSCPorA - SConcPorSAbs/ RaizNPorScAlCuadradoMenosScPorSc*RaizNPorSaAlCuadradoMenosSaPorSa
+Correlacion = (BaseDeCorrelacion*BaseDeCorrelacion)
+
+
+    console.log(Absorbancia1);
+    $("#EcuacionRecta").text("A ="+PendienteDeGrafica + 'C +' + IncognitaB);
+    $("#Correlacion").text(Correlacion);
+}
+
+
+</script>
+</body>
+</html>
