@@ -57,7 +57,7 @@
             
         }
         .containerBtn1{
-            padding-left: 170px;
+            padding-left: 145px;
             padding-bottom:5px ;
         }
         #btncaptureIo{
@@ -65,12 +65,18 @@
             padding: 5px;
             border-radius: 12px;
             background-color:rgb(83, 215, 83);
+            padding-left:15px;
+            padding-right:15px;
+            font-weight: bold;
         }
         #btncaptureI{
             font-size:17px ;
             padding: 5px;
             border-radius: 12px;
             background-color:rgb(83, 215, 83);
+            padding-left:20px;
+            padding-right:20px;
+            font-weight: bold;
         }
         .containterBtnBorrar{
             padding-left: 10px;
@@ -81,6 +87,7 @@
             padding: 5px;
             border-radius: 12px;
             background-color:rgb(218, 80, 73);
+            font-weight: bold;
         }
         #id{
             font-weight:900;
@@ -97,6 +104,7 @@
             padding: 5px;
             border-radius: 12px;
             background-color:rgb(33, 214, 234);
+            font-weight: bold;
         }
         
         .concentracion{
@@ -106,15 +114,26 @@
             font-weight: bold;
             font-size: 14px;
         }
+        .analizaMuestra{
+            padding-left: 20px;
+            padding-bottom: 500px;
+        }
         #EcuacionRecta{
-            padding-left: 410px;
+            padding-left: 350px;
             font-weight: bold;
             padding-bottom:20px ;
         }
         #Correlacion{
-            padding-left: 410px;
+            padding-left: 350px;
             font-weight: bold;
             padding-bottom:20px ;
+        }
+        #analizarMuestra{
+            font-size:17px ;
+            padding: 5px;
+            border-radius: 12px;
+            background-color:rgb(219, 213, 23);
+            font-weight: bold;
         }
         
     </style>
@@ -125,7 +144,7 @@
     <h1 class="titulo">Colorímetro</h1>
 </div>
 <div class="body">
-    <p class="parrafo">Datos del colorímetro: <span id="datos"></span></p>
+    <p class="parrafo">Valor actual del monitor serie: <span id="datos"></span></p>
     <div class="containerBtn1">
         <button id="btncaptureIo" onclick="capturarValorIo()">Capturar Io</button>
         <button id="btncaptureI"  onclick="capturarValorI()">Capturar I</button>
@@ -141,7 +160,7 @@
         
     </tr>
     <tr>
-        <td>I1</td>
+        <td>Muestra 1</td>
         <td id="valorIo0"></td>
         <td id="valorI0"></td>
         <td><input id="Concentracion1" class="concentracion" placeholder="Concentración" type="number"></td>
@@ -149,7 +168,7 @@
 
     </tr>
     <tr>  
-        <td>I2</td>
+        <td>Muestra 2</td>
         <td id="valorIo1"></td> 
         <td id="valorI1"></td>
         <td><input id="Concentracion2" class="concentracion" placeholder="Concentración" type="number"></input></td>
@@ -157,7 +176,7 @@
 
     </tr>
     <tr>  
-        <td>I3</td>
+        <td>Muestra 3</td>
         <td id="valorIo2"></td> 
         <td id="valorI2"></td>
         <td><input id="Concentracion3" class="concentracion" placeholder="Concentración" type="number"></td>
@@ -165,7 +184,7 @@
 
     </tr>
     <tr>  
-        <td>I4</td>
+        <td>Muestra 4</td>
         <td id="valorIo3"></td> 
         <td id="valorI3"></td>
         <td><input id="Concentracion4" class="concentracion" placeholder="Concentración" type="number"></td>
@@ -173,7 +192,7 @@
 
     </tr>
     <tr>  
-        <td>I5</td>
+        <td>Muestra 5</td>
         <td id="valorIo4"></td> 
         <td id="valorI4"></td>
         <td><input id="Concentracion5" class="concentracion" placeholder="Concentración" type="number" ></td>
@@ -191,6 +210,22 @@
     <P id="EcuacionRecta"></P>
     <p id="Correlacion"></p>
     <canvas id="miGrafica" ></canvas>
+</div>
+
+<div class="analizaMuestra">
+    <button id="analizarMuestra" onclick="muestra6()" > Analizar muestra</button>
+    <table>
+        <tr>
+            <td></td>
+            <td>Absorbancia (U.A)</td>
+            <td>Concentración (mol/L)</td>
+        </tr>
+        <tr>
+            <td>Muestra 6</td>
+            <td id="AbsorbanciaMuestra6"></td>
+            <td id="ConcentracionMuestra6"></td>
+        </tr>
+    </table>
 
 </div>
 </div>
@@ -200,6 +235,7 @@
 
     <script src="socket.io/socket.io.js" charset="utf-8"></script>
     <script>
+        Chart.defaults.global.legend.display = false;
         const socket = io();
         var datosRecibidos= 0
         var datoRecibido1 = 0
@@ -226,8 +262,7 @@
         var NumeroDeSoluciones = 0
         var PendienteDeGrafica = 0
         var IncognitaB = 0
-        var Punto1Concentracion = 0
-        var Punto2Concentracion = 0
+        
         
         const tablaI0 = document.getElementById('valorI0')
         const tablaI1 = document.getElementById('valorI1')
@@ -253,6 +288,8 @@
         $("#valorIo3").text(datosRecibidos);
         $("#valorIo4").text(datosRecibidos);
         valorIo = datosRecibidos
+        console.log(valorI0);
+        console.log(datosRecibidos);
         }
 
         function capturarValorI(){
@@ -260,28 +297,28 @@
             datoRecibido1 = datosRecibidos
             $("#valorI0").text(datoRecibido1)
             $("#Absorb1").text(Math.log10(valorIo/datoRecibido1))
-            Absorb1 = Math.log10(valorIo/datoRecibido1)
+            Absorb1 = parseFloat(Math.log10(valorIo/datoRecibido1))
 
 
         }else if (datoRecibido2 == 0){
             datoRecibido2 = datosRecibidos
             $("#valorI1").text(datoRecibido2)
             $("#Absorb2").text(Math.log10(valorIo/datoRecibido2))
-            Absorb2 = Math.log10(valorIo/datoRecibido2)
+            Absorb2 = parseFloat(Math.log10(valorIo/datoRecibido2))
 
 
         }else if (datoRecibido3 == 0){
             datoRecibido3 = datosRecibidos
             $("#valorI2").text(datoRecibido3)
             $("#Absorb3").text(Math.log10(valorIo/datoRecibido3))
-            Absorb3 = Math.log10(valorIo/datoRecibido3)
+            Absorb3 = parseFloat(Math.log10(valorIo/datoRecibido3))
 
 
         }else if (datoRecibido4 == 0){
             datoRecibido4 = datosRecibidos
             $("#valorI3").text(datoRecibido4)
             $("#Absorb4").text(Math.log10(valorIo/datoRecibido4))
-            Absorb4 = Math.log10(valorIo/datoRecibido4)
+            Absorb4 = parseFloat(Math.log10(valorIo/datoRecibido4))
 
 
 
@@ -289,8 +326,10 @@
             datoRecibido5 = datosRecibidos
             $("#valorI4").text(datoRecibido5)
             $("#Absorb5").text(Math.log10(valorIo/datoRecibido5)) 
-            Absorb5 = Math.log10(valorIo/datoRecibido5)
+            Absorb5 = parseFloat(Math.log10(valorIo/datoRecibido5))
+            
         }
+        console.log(valorI0);
     }
     
 
@@ -327,17 +366,63 @@
     }
 
     function CreateChart(){
-        Conc1 = parseInt(Concentracion1.value)
-        Conc2 = parseInt(Concentracion2.value)
-        Conc3 = parseInt(Concentracion3.value)
-        Conc4 = parseInt(Concentracion4.value)
-        Conc5 = parseInt(Concentracion5.value)
-        //Para la recta ideal
-Punto1Concentracion = 0.1 //P1
-Punto2Concentracion = 0.2 //p2
+        Conc1 = parseFloat(Concentracion1.value)
+        Conc2 = parseFloat(Concentracion2.value)
+        Conc3 = parseFloat(Concentracion3.value)
+        Conc4 = parseFloat(Concentracion4.value)
+        Conc5 = parseFloat(Concentracion5.value)
 
-Absorbancia1 = parseInt(PendienteDeGrafica*Punto1Concentracion + IncognitaB)
-Absorbancia2 = parseInt(PendienteDeGrafica*Punto2Concentracion + IncognitaB)
+        // para hallar m
+SumConcentracion = Conc1 + Conc2 + Conc3 + Conc4 + Conc5 //Sc
+console.log(SumConcentracion);
+SumAbsorbancia = Absorb1 + Absorb2 + Absorb3 + Absorb4 + Absorb5 //Sa
+console.log(SumAbsorbancia);
+ConcPorAbs = (Conc1*Absorb1) + (Conc2*Absorb2) + (Conc3*Absorb3) + (Conc4*Absorb4) + (Conc5*Absorb5) //Sc.a
+console.log(ConcPorAbs);
+SumCAlCuadrado = (Conc1*Conc1) + (Conc2*Conc2) + (Conc3*Conc3) + (Conc4*Conc4) + (Conc5*Conc5) //Sc*
+console.log(SumCAlCuadrado);
+SumAAlCuadrado = (Absorb1*Absorb1) + (Absorb2*Absorb2) + (Absorb3*Absorb3) + (Absorb4*Absorb4) + (Absorb5*Absorb5) //Sa*
+console.log(SumAAlCuadrado);
+NumeroDeSoluciones = 5
+NPorSCPorA = (NumeroDeSoluciones*ConcPorAbs) //N.(Sc.a)
+console.log(NPorSCPorA);
+SConcPorSAbs = (SumConcentracion*SumAbsorbancia) //Sc.Sa
+console.log(SConcPorSAbs);
+NPorSconcAlCuadrado = (NumeroDeSoluciones*SumCAlCuadrado) //N.Sc*
+console.log(NPorSconcAlCuadrado);
+SConcPorSconc = (SumConcentracion*SumConcentracion) //Sc.Sc
+console.log(SConcPorSconc);
+PendienteDeGrafica = (NPorSCPorA-SConcPorSAbs) / (NPorSconcAlCuadrado-SConcPorSconc) //m
+console.log(PendienteDeGrafica);
+
+//para hallar b
+SAbsPorSconcAlCuadrado = (SumAbsorbancia*SumCAlCuadrado) //Sa.Sc*
+console.log(SAbsPorSconcAlCuadrado);
+SconcPorSConcPorAbs = (SumConcentracion*ConcPorAbs) //Sc.(Sc.a)
+console.log(SconcPorSConcPorAbs);
+IncognitaB = (SAbsPorSconcAlCuadrado-SconcPorSConcPorAbs) / (NPorSconcAlCuadrado-SConcPorSconc) //b
+console.log(IncognitaB);
+// para hallar R
+
+NPorSAbsAlCuadrado = (NumeroDeSoluciones*SumAAlCuadrado) // N.Sa*
+console.log(NPorSAbsAlCuadrado);
+SAbsPorSAbs = (SumAbsorbancia*SumAbsorbancia)//Sa.Sa
+console.log(SAbsPorSAbs);
+RaizNPorScAlCuadradoMenosScPorSc = Math.sqrt(NPorSconcAlCuadrado - SConcPorSconc)//Raiz de (N.Sc*)-(Sc.Sc)
+console.log(RaizNPorScAlCuadradoMenosScPorSc);
+RaizNPorSaAlCuadradoMenosSaPorSa = Math.sqrt(NPorSAbsAlCuadrado - SAbsPorSAbs)//Raiz de (N.Sa*)-(Sa.Sa)
+console.log(RaizNPorSaAlCuadradoMenosSaPorSa);
+BaseDeCorrelacion = (NPorSCPorA - SConcPorSAbs)/ (RaizNPorScAlCuadradoMenosScPorSc*RaizNPorSaAlCuadradoMenosSaPorSa)
+console.log(BaseDeCorrelacion);
+Correlacion = (BaseDeCorrelacion*BaseDeCorrelacion)
+console.log(Correlacion);
+//Para la recta
+Absorbancia1 = parseFloat(PendienteDeGrafica*Conc1 + IncognitaB)
+console.log(Absorbancia1);
+Absorbancia2 = parseFloat(PendienteDeGrafica*Conc5 + IncognitaB)
+console.log(Absorbancia2);
+
+
 
     let Grafica = document.getElementById("miGrafica")
     let miGrafica = new Chart(Grafica,{
@@ -345,9 +430,9 @@ Absorbancia2 = parseInt(PendienteDeGrafica*Punto2Concentracion + IncognitaB)
     data: {
         datasets: [{
             label: "Grafica de Absorbancia en funcion de Concentración",
-            data: [ {
-            x:0,
-            y:0
+            data: [{
+            x: 0,
+            y: 0
             },{
             x: Conc1,
             y: Absorb1
@@ -366,57 +451,44 @@ Absorbancia2 = parseInt(PendienteDeGrafica*Punto2Concentracion + IncognitaB)
             }],
             showLine: false,
             fill:false,
-            borderColor: 'rgba(0,0,0,1)',
+            borderColor: 'rgb(0, 0, 255)',
+            beginAtZero:true
+            
+            
         },{
             data:[{
-                x:Punto1Concentracion,
+                x:Conc1,
                 y:Absorbancia1
             },{
-                x:Punto2Concentracion,
+                x:Conc5,
                 y:Absorbancia2
             }],
             showLine: true,
             fill:false,
             borderColor: 'rgba(0,0,0,1)',
+
         }]
     },
     options: {
         responsive: 'true',
         showline: false,
+        
     }
     })
-document.getElementById("miGrafica").style.display = "block";
-
-// para hallar m
-SumConcentracion = Conc1 + Conc2 + Conc3 + Conc4 + Conc5 //Sc
-SumAbsorbancia = Absorb1 + Absorb2 + Absorb3 + Absorb4 + Absorb5 //Sa
-ConcPorAbs = (Conc1*Absorb1) + (Conc2*Absorb2) + (Conc3*Absorb3) + (Conc4*Absorb4) + (Conc5*Absorb5) //Sc.a
-SumCAlCuadrado = (Conc1*Conc1) + (Conc2*Conc2) + (Conc3*Conc3) + (Conc4*Conc4) + (Conc5*Conc5) //Sc*
-SumAAlCuadrado = (Absorb1*Absorb1) + (Absorb2*Absorb2) + (Absorb3*Absorb3) + (Absorb4*Absorb4) + (Absorb5*Absorb5) //Sa*
-NumeroDeSoluciones = 5
-NPorSCPorA = (NumeroDeSoluciones*ConcPorAbs) //N.(Sc.a)
-SConcPorSAbs = (SumConcentracion*SumAbsorbancia) //Sc.Sa
-NPorSconcAlCuadrado = (NumeroDeSoluciones*SumCAlCuadrado) //N.Sc*
-SConcPorSconc = (SumConcentracion*SumConcentracion) //Sc.Sc
-PendienteDeGrafica = NPorSCPorA-SConcPorSAbs/NPorSconcAlCuadrado-SConcPorSconc //m
-
-//para hallar b
-SAbsPorSconcAlCuadrado = (SumAbsorbancia*SumCAlCuadrado) //Sa.Sc*
-SconcPorSConcPorAbs = (SumConcentracion*ConcPorAbs) //Sc.(Sc.a)
-IncognitaB = SAbsPorSconcAlCuadrado-SconcPorSConcPorAbs/NPorSconcAlCuadrado-SConcPorSconc //b
-// para hallar R
-
-NPorSAbsAlCuadrado = (NumeroDeSoluciones*SumAAlCuadrado) // N.Sa*
-SAbsPorSAbs = (SumAbsorbancia*SumAbsorbancia)//Sa.Sa
-RaizNPorScAlCuadradoMenosScPorSc = Math.sqrt(NPorSconcAlCuadrado - SConcPorSconc)//Raiz de (N.Sc*)-(Sc.Sc)
-RaizNPorSaAlCuadradoMenosSaPorSa = Math.sqrt(NPorSAbsAlCuadrado - SAbsPorSAbs)//Raiz de (N.Sa*)-(Sa.Sa)
-BaseDeCorrelacion = NPorSCPorA - SConcPorSAbs/ RaizNPorScAlCuadradoMenosScPorSc*RaizNPorSaAlCuadradoMenosSaPorSa
-Correlacion = (BaseDeCorrelacion*BaseDeCorrelacion)
-
-
-    console.log(Absorbancia1);
+    document.getElementById("miGrafica").style.display = "block";
     $("#EcuacionRecta").text("A ="+PendienteDeGrafica + 'C +' + IncognitaB);
     $("#Correlacion").text(Correlacion);
+    
+}
+
+function muestra6(){
+    
+    const ValorI6 = datosRecibidos
+    const valorAbsorbancia6 = parseFloat(valorIo/ValorI6)
+    $("#AbsorbanciaMuestra6").text(valorAbsorbancia6)
+    const Concentracion6 = (valorAbsorbancia6-IncognitaB) / PendienteDeGrafica
+    console.log(PendienteDeGrafica);
+    $("#ConcentracionMuestra6").text(Concentracion6)
 }
 
 
